@@ -12,7 +12,8 @@ class QLogin:
         self.cookies = None
         self.ptqrtoken = None
 
-    def _bkn(self, p_skey: str) -> int:
+    @staticmethod
+    def _bkn(p_skey: str) -> int:
         """
         Calculate bkn using p_skey.
         :param p_skey: The p_skey from cookies
@@ -24,7 +25,8 @@ class QLogin:
             n += 1
         return t & 2147483647
 
-    def _ptqrToken(self, qrsig: str) -> int:
+    @staticmethod
+    def _ptqrToken(qrsig: str) -> int:
         """
         Calculate ptqrtoken using qrsig.
         :param qrsig: The qrsig from cookies
@@ -92,6 +94,7 @@ class QLogin:
                     try:
                         r = requests.get(check_sig_url, cookies=cookies, allow_redirects=False)
                         final_cookies = requests.utils.dict_from_cookiejar(r.cookies)
+                        self.cookies = final_cookies
                         return {"status": "success", "cookies": final_cookies}
                     except Exception as e:
                         raise ConnectionError(f"Failed to retrieve final cookies after successful login: {e}")

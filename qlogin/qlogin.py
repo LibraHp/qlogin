@@ -2,7 +2,8 @@ import requests
 import re
 import time
 import base64
-
+import json
+import random
 
 class QLogin:
     def __init__(self):
@@ -101,7 +102,7 @@ class QLogin:
                         final_cookies = requests.utils.dict_from_cookiejar(r.cookies)
                         self.cookies = final_cookies
                         self.uin = re.sub(r'o0*', '', uin)
-                        self.g_tk = self._bkn(cookies.get('p_skey'))
+                        self.g_tk = self._bkn(self.cookies.get('p_skey'))
                         return {"status": "success", "cookies": final_cookies}
                     except Exception as e:
                         raise ConnectionError(f"Failed to retrieve final cookies after successful login: {e}")
@@ -110,3 +111,34 @@ class QLogin:
 
             except Exception as e:
                 raise ConnectionError(f"Error while checking login status: {e}")
+
+    def get_login_user_info(self):
+        """
+        Get the user information after login.
+        :return: Dictionary with user information or error message.
+        """
+        if not self.uin or not self.g_tk or not self.cookies:
+            raise ValueError("Login information is incomplete. Please ensure login is successful before fetching user info.")
+
+        params = {
+            'uin': self.uin,
+            'vuin': self.uin,
+            'fupdate': '1',
+            'rd': random.random(),
+            'g_tk': self.g_tk,
+        }
+        url = 'https://h5.qzone.qq.com/proxy/domain/base.qzone.qq.com/cgi-bin/user/cgi_userinfo_get_all'
+        
+        try:
+            response = requests.get(url, params=params, cookies=self.cookies, headers=self.headers, timeout=10)
+            response.raise_for_status()  # Check for HTTP errors
+        except requests.RequestException as e:
+            return {"status": "error", "message": f"Network error: {e}"}
+        
+        try:
+            # Parse and clean up the response text safely
+            info_text = response.text.strip().lstrip('_Callback(').rstrip(');')
+            user_info = json.loads(info_text)
+            return {"status": "success", "user_info": user_info}
+        except json.JSONDecodeError as e:
+            return {"status": "error", "message": f"Failed to parse user info: {e}"}

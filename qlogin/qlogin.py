@@ -10,7 +10,12 @@ class QLogin:
         self.daid = '5'
         self.qrsig = None
         self.cookies = None
+        self.uin = None
+        self.g_tk = None
         self.ptqrtoken = None
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/237.84.2.178 Safari/537.36'
+        }
 
     @staticmethod
     def _bkn(p_skey: str) -> int:
@@ -45,7 +50,7 @@ class QLogin:
         """
         url = f'https://ssl.ptlogin2.qq.com/ptqrshow?appid={self.appid}&e=2&l=M&s=3&d=72&v=4&t={time.time()}&daid={self.daid}&pt_3rd_aid=0'
         try:
-            r = requests.get(url)
+            r = requests.get(url, headers=self.headers)
             self.qrsig = requests.utils.dict_from_cookiejar(r.cookies).get('qrsig')
             if self.qrsig:
                 self.ptqrtoken = self._ptqrToken(self.qrsig)
@@ -72,7 +77,7 @@ class QLogin:
 
             cookies = {'qrsig': self.qrsig}
             try:
-                r = requests.get(url, cookies=cookies)
+                r = requests.get(url, cookies=cookies,headers=self.headers)
                 response_text = r.text
                 if '二维码未失效' in response_text:
                     return {"status": "waiting", "message": "二维码未失效"}
@@ -92,9 +97,11 @@ class QLogin:
                                     f'&nodirect=0&ptsigx={sigx}&s_url=https%3A%2F%2Fqzs.qq.com%2Fqzone%2Fv5%2Floginsucc.html%3Fpara%3Dizone' \
                                     f'&f_url=&ptlang=2052&ptredirect=100&aid={self.appid}&daid={self.daid}'
                     try:
-                        r = requests.get(check_sig_url, cookies=cookies, allow_redirects=False)
+                        r = requests.get(check_sig_url, cookies=cookies, allow_redirects=False, headers=self.headers)
                         final_cookies = requests.utils.dict_from_cookiejar(r.cookies)
                         self.cookies = final_cookies
+                        self.uin = re.sub(r'o0*', '', uin)
+                        self.g_tk = self._bkn(cookies.get('p_skey'))
                         return {"status": "success", "cookies": final_cookies}
                     except Exception as e:
                         raise ConnectionError(f"Failed to retrieve final cookies after successful login: {e}")

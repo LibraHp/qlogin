@@ -19,18 +19,15 @@ pip install qlogin
 ## 使用示例
 
 ```python
-import QLogin as 
-
-# 创建 QQLogin 实例
-qq_login = QQLogin()
-
-# 获取二维码的 base64 编码
-qr_code_base64 = qq_login.get_qr_image()
-print("QR Code Base64:", qr_code_base64)
-
+from qlogin import QLogin
+# 创建实例
+qlogin = QLogin()
+# 获取二维码
+qr_code_base64 = qlogin.get_qr_image()
 # 检查登录状态
-status = qq_login.check_login_status()
-print("Login Status:", status)
+status = qlogin.check_login_status()
+print(status)
+
 ```
 
 ## 方法

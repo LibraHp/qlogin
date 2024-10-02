@@ -1,3 +1,3 @@
-from .main_module import QLogin
+from .qlogin import QLogin
 
-__all__ = ['QLogin']
+__all__ = ["QLogin"]

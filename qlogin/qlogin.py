@@ -79,6 +79,7 @@ class QLogin:
             cookies = {'qrsig': self.qrsig}
             try:
                 r = requests.get(url, cookies=cookies,headers=self.headers)
+                r.encoding = 'utf-8'
                 response_text = r.text
                 if '二维码未失效' in response_text:
                     return {"status": "waiting", "message": "二维码未失效"}

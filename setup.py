@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="qlogin",            # 包的名字
-    version="0.1.1",                     # 初始版本号
+    version="0.1.2",                     # 初始版本号
     author="LibraHp",                  # 作者名字
     author_email="1941163264@qq.com",# 作者联系信息
     description="QQ空间登录组件",   # 简短描述
